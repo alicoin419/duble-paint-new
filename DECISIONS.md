@@ -4,7 +4,8 @@
 - **Next.js 16**: Used the latest version available (16.2.6) for performance benefits.
 - **Tailwind CSS v4**: Scaffolding provided Tailwind 4. Custom typography and color tokens were mapped to CSS variables and integrated into the `@theme` block.
 - **Mux Player**: Installed `@mux/mux-player` for high-quality video looping in the Hero.
-- **Lucide React**: Used for standard UI icons while keeping the custom SVG requirement for the Logo.
+- **Lucide React**: Used for standard UI icons.
+- **Brand Logo**: Implemented the primary brand logo (`/logo.webp`) across the Navigation, Mobile Menu, and Footer using `next/image` for optimized delivery and visual consistency.
 
 ## 2. Design System Implementation
 - **Law #4 (No Rounded Corners)**: Enforced via `border-radius: 0 !important` in `globals.css` base layer.

@@ -28,12 +28,17 @@ export default function DesignerTool() {
   const [selectedColor, setSelectedColor] = useState(COLORS[0]);
   
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+  const [isGeneratingPro, setIsGeneratingPro] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<any>(null);
+  const [sceneData, setSceneData] = useState<any>(null);
+  const [hoveredSegment, setHoveredSegment] = useState<any>(null);
+  const [proResult, setProResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 4 * 1024 * 1024) {
@@ -44,7 +49,38 @@ export default function DesignerTool() {
       const url = URL.createObjectURL(file);
       setImagePreview(url);
       setAnalysisResult(null);
+      setSceneData(null);
+      setProResult(null);
       setError(null);
+
+      // Auto-Scan the scene for smart selection
+      await handleScanScene(file);
+    }
+  };
+
+  const handleScanScene = async (file: File) => {
+    setIsScanning(true);
+    try {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      const base64Image = await new Promise<string>((resolve) => {
+        reader.onload = () => resolve(reader.result as string);
+      });
+
+      const response = await fetch('/api/designer/scan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: base64Image })
+      });
+
+      if (!response.ok) throw new Error('Scene scan failed');
+      const data = await response.json();
+      setSceneData(data);
+    } catch (err: any) {
+      console.error('Scan error:', err);
+      // We don't block the UI for scan failures, just log it
+    } finally {
+      setIsScanning(false);
     }
   };
 
@@ -52,13 +88,19 @@ export default function DesignerTool() {
     setImageFile(null);
     setImagePreview(null);
     setAnalysisResult(null);
+    setSceneData(null);
+    setProResult(null);
     setError(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
   };
 
-  const handleApplyColor = async () => {
+  const handleApplyColor = async (argX?: any, argY?: any) => {
+    // Type-safe coordinate extraction to avoid Event objects
+    const clickX = typeof argX === 'number' ? argX : undefined;
+    const clickY = typeof argY === 'number' ? argY : undefined;
+
     if (!imageFile) {
       setError('Please upload an image first');
       return;
@@ -67,9 +109,9 @@ export default function DesignerTool() {
     setIsAnalyzing(true);
     setError(null);
     setAnalysisResult(null);
+    setProResult(null);
 
     try {
-      // Convert file to base64
       const reader = new FileReader();
       reader.readAsDataURL(imageFile);
       
@@ -80,23 +122,18 @@ export default function DesignerTool() {
 
       const response = await fetch('/api/designer', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           image: base64Image,
           objectType: selectedObject,
           colorName: selectedColor.name,
-          colorHex: selectedColor.hex
+          colorHex: selectedColor.hex,
+          clickX,
+          clickY
         })
       });
 
-      if (!response.ok) {
-        if (response.status === 429) {
-          throw new Error('Too many requests. Please try again in a minute.');
-        }
-        throw new Error('Failed to analyze image');
-      }
+      if (!response.ok) throw new Error('Failed to analyze image');
 
       const data = await response.json();
       setAnalysisResult(data);
@@ -104,6 +141,42 @@ export default function DesignerTool() {
       setError(err.message || 'An error occurred during analysis');
     } finally {
       setIsAnalyzing(false);
+    }
+  };
+
+  const handleGenerateProPreview = async () => {
+    if (!imageFile || !analysisResult?.segmentation?.polygon) return;
+
+    setIsGeneratingPro(true);
+    setError(null);
+
+    try {
+      const reader = new FileReader();
+      reader.readAsDataURL(imageFile);
+      const base64Image = await new Promise<string>((resolve) => {
+        reader.onload = () => resolve(reader.result as string);
+      });
+
+      const response = await fetch('/api/designer/replicate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image: base64Image,
+          polygon: analysisResult.segmentation.polygon,
+          obstructions: analysisResult.segmentation.obstructions,
+          colorName: selectedColor.name,
+          colorHex: selectedColor.hex
+        })
+      });
+
+      if (!response.ok) throw new Error('Failed to generate high-fidelity preview');
+
+      const data = await response.json();
+      setProResult(data.image);
+    } catch (err: any) {
+      setError(err.message || 'Pro preview failed');
+    } finally {
+      setIsGeneratingPro(false);
     }
   };
 
@@ -125,32 +198,162 @@ export default function DesignerTool() {
             </div>
           ) : (
             <>
-              {/* Image Layer */}
+              {/* Interactive Segmentation Map (Visible on hover if scanned) */}
+              <AnimatePresence>
+                {sceneData?.mapUrl && !proResult && (
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 0.3 }}
+                    className="absolute inset-0 z-10 pointer-events-none mix-blend-multiply transition-opacity duration-500"
+                    style={{ 
+                      backgroundImage: `url(${sceneData.mapUrl})`,
+                      backgroundSize: 'cover'
+                    }}
+                  />
+                )}
+              </AnimatePresence>
+
+              {/* Image Layer with Click Interaction */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img 
                 src={imagePreview} 
                 alt="Your space" 
-                className="absolute inset-0 w-full h-full object-cover"
+                className="absolute inset-0 w-full h-full object-cover cursor-crosshair z-20"
+                onClick={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const x = (e.clientX - rect.left) / rect.width;
+                  const y = (e.clientY - rect.top) / rect.height;
+                  handleApplyColor(x, y);
+                }}
               />
               
-              {/* Simulated Color Overlay based on AI validation */}
+              <div className="absolute top-4 left-4 bg-ink/80 text-bone text-[8px] px-2 py-1 uppercase tracking-widest flex items-center gap-2 pointer-events-none z-30">
+                {isScanning ? (
+                  <>
+                    <Loader2 size={10} className="animate-spin text-petra" />
+                    Analyzing Architecture...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles size={10} className="text-petra" />
+                    {sceneData ? 'Scene Parsed - Click any object' : 'Click any surface to paint'}
+                  </>
+                )}
+              </div>
+              
+              {/* High-Fidelity (Pro) Result Layer */}
               <AnimatePresence>
-                {analysisResult?.isValidated && (
+                {proResult && (
                   <motion.div 
                     initial={{ opacity: 0 }}
-                    animate={{ opacity: 0.6 }}
+                    animate={{ opacity: 1 }}
+                    className="absolute inset-0 z-40"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img 
+                      src={proResult} 
+                      alt="Pro AI Result" 
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-4 left-4 bg-petra text-bone text-[10px] px-3 py-1 uppercase tracking-widest flex items-center gap-2">
+                      <Sparkles size={12} />
+                      Pro AI HD Preview
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              
+              {/* High-Precision Selection Layer (Mask or Polygon) */}
+              <AnimatePresence>
+                {analysisResult?.isValidated && (analysisResult?.segmentation?.polygon || analysisResult?.segmentation?.maskUrl) && !proResult && (
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
-                    className="absolute inset-0 pointer-events-none mix-blend-multiply"
-                    style={{ backgroundColor: selectedColor.hex }}
-                  />
+                    transition={{ duration: 1.5 }}
+                    className="absolute inset-0 pointer-events-none z-30"
+                  >
+                    {/* OPTION A: Pixel-Perfect Mask from SAM 2 */}
+                    {analysisResult.segmentation.maskUrl ? (
+                      <div className="absolute inset-0 w-full h-full">
+                         <div 
+                           className="absolute inset-0 w-full h-full"
+                           style={{ 
+                             backgroundColor: selectedColor.hex,
+                             maskImage: `url(${analysisResult.segmentation.maskUrl})`,
+                             maskSize: '100% 100%',
+                             WebkitMaskImage: `url(${analysisResult.segmentation.maskUrl})`,
+                             WebkitMaskSize: '100% 100%',
+                             mixBlendMode: 'multiply',
+                             opacity: 0.8
+                           }}
+                         />
+                         {/* Subtle Highlight Layer for Realism */}
+                         <div 
+                           className="absolute inset-0 w-full h-full"
+                           style={{ 
+                             backgroundColor: selectedColor.hex,
+                             maskImage: `url(${analysisResult.segmentation.maskUrl})`,
+                             maskSize: '100% 100%',
+                             WebkitMaskImage: `url(${analysisResult.segmentation.maskUrl})`,
+                             WebkitMaskSize: '100% 100%',
+                             mixBlendMode: 'overlay',
+                             opacity: 0.2
+                           }}
+                         />
+                      </div>
+                    ) : (
+                      /* OPTION B: Vector Polygon from Gemini */
+                      <svg width="100%" height="100%" viewBox="0 0 1 1" preserveAspectRatio="none" className="absolute inset-0">
+                        <defs>
+                          <filter id="mask-blur">
+                            <feGaussianBlur in="SourceGraphic" stdDeviation="0.005" />
+                          </filter>
+                          <mask id="surface-mask">
+                            <rect x="0" y="0" width="1" height="1" fill="black" />
+                            <g filter="url(#mask-blur)">
+                              <polygon 
+                                points={analysisResult.segmentation.polygon.map((p: any) => `${p.x},${p.y}`).join(' ')} 
+                                fill="white" 
+                              />
+                              {analysisResult.segmentation.obstructions?.map((obs: any, i: number) => (
+                                <polygon 
+                                  key={i}
+                                  points={obs.map((p: any) => `${p.x},${p.y}`).join(' ')} 
+                                  fill="black" 
+                                />
+                              ))}
+                            </g>
+                          </mask>
+                        </defs>
+                        <rect 
+                          x="0" y="0" width="1" height="1" 
+                          fill={selectedColor.hex} 
+                          mask="url(#surface-mask)"
+                          style={{ 
+                            mixBlendMode: 'multiply',
+                            opacity: 0.75
+                          }}
+                        />
+                        <rect 
+                          x="0" y="0" width="1" height="1" 
+                          fill={selectedColor.hex} 
+                          mask="url(#surface-mask)"
+                          style={{ 
+                            mixBlendMode: 'overlay',
+                            opacity: 0.15
+                          }}
+                        />
+                      </svg>
+                    )}
+                  </motion.div>
                 )}
               </AnimatePresence>
 
               {/* Removing Image Button */}
               <button 
                 onClick={removeImage}
-                className="absolute top-4 right-4 w-10 h-10 bg-ink/80 text-bone flex items-center justify-center hover:bg-ink transition-colors z-10"
+                className="absolute top-4 right-4 w-10 h-10 bg-ink/80 text-bone flex items-center justify-center hover:bg-ink transition-colors z-20"
                 aria-label="Remove image"
               >
                 <X size={20} />
@@ -158,19 +361,32 @@ export default function DesignerTool() {
 
               {/* Loading State Overlay */}
               <AnimatePresence>
-                {isAnalyzing && (
+                {(isAnalyzing || isGeneratingPro) && (
                   <motion.div 
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-ink/80 backdrop-blur-sm flex flex-col items-center justify-center gap-6 z-20"
+                    className="absolute inset-0 bg-ink/40 backdrop-blur-[2px] flex flex-col items-center justify-center gap-6 z-30 overflow-hidden"
                   >
-                    <Loader2 size={40} className="text-bone animate-spin" />
-                    <div className="flex flex-col items-center">
-                      <span className="text-bone font-display text-xl mb-1">AI Model Analyzing Space</span>
-                      <span className="text-bone/60 text-xs uppercase tracking-widest font-mono">
-                        Validating {selectedObject} structure for {selectedColor.name}...
-                      </span>
+                    <motion.div 
+                      initial={{ top: '-10%' }}
+                      animate={{ top: '110%' }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                      className={`absolute left-0 right-0 h-1 z-40 ${isGeneratingPro ? 'bg-bone shadow-[0_0_20px_white]' : 'bg-petra/50 shadow-[0_0_20px_rgba(196,135,58,0.8)]'}`}
+                    />
+                    
+                    <div className="relative z-50 flex flex-col items-center bg-ink/80 p-8 border border-bone/10 backdrop-blur-md">
+                      <Loader2 size={40} className={`animate-spin mb-4 ${isGeneratingPro ? 'text-bone' : 'text-petra'}`} />
+                      <div className="flex flex-col items-center text-center">
+                        <span className="text-bone font-display text-xl mb-1">
+                          {isGeneratingPro ? 'Generating Pro HD Preview' : 'Architectural Mapping'}
+                        </span>
+                        <span className="text-bone/60 text-[10px] uppercase tracking-[0.2em] font-mono max-w-[250px]">
+                          {isGeneratingPro 
+                            ? 'Using SDXL Generative AI to render photorealistic finishes...' 
+                            : `Identifying ${selectedObject} boundaries for ${selectedColor.name} finish...`}
+                        </span>
+                      </div>
                     </div>
                   </motion.div>
                 )}
@@ -192,7 +408,7 @@ export default function DesignerTool() {
             <motion.div 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className={`p-6 border-l-2 ${analysisResult.isValidated ? 'bg-chalk border-petra' : 'bg-[#FFF5F5] border-error'}`}
+              className={`p-6 border-l-2 flex justify-between items-center ${analysisResult.isValidated ? 'bg-chalk border-petra' : 'bg-[#FFF5F5] border-error'}`}
             >
               <div className="flex items-start gap-3">
                 {analysisResult.isValidated ? (
@@ -202,13 +418,23 @@ export default function DesignerTool() {
                 )}
                 <div>
                   <h4 className="font-display text-lg mb-2">
-                    {analysisResult.isValidated ? 'Analysis Complete & Applied' : 'Object Not Validated'}
+                    {analysisResult.isValidated ? 'Surface Mapped' : 'Object Not Validated'}
                   </h4>
                   <p className="text-sm opacity-80 leading-relaxed font-mono whitespace-pre-wrap">
                     {analysisResult.feedback}
                   </p>
                 </div>
               </div>
+
+              {analysisResult.isValidated && !proResult && (
+                <button 
+                  onClick={handleGenerateProPreview}
+                  className="btn-outline border-petra text-petra hover:bg-petra hover:text-bone text-[10px] px-4 py-2 shrink-0 ml-4 hidden md:flex items-center gap-2"
+                >
+                  <Sparkles size={12} />
+                  Generate Pro HD
+                </button>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
@@ -282,7 +508,7 @@ export default function DesignerTool() {
         {/* Action */}
         <div className="mt-auto pt-8">
           <button 
-            onClick={handleApplyColor}
+            onClick={() => handleApplyColor()}
             disabled={!imageFile || isAnalyzing}
             className="w-full btn-primary flex justify-between items-center group disabled:opacity-50 disabled:cursor-not-allowed"
           >

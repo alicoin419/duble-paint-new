@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import "./globals.css";
 import UtilityBar from "@/components/global/UtilityBar";
 import Navigation from "@/components/global/Navigation";
@@ -26,7 +27,13 @@ export default function RootLayout({
         <footer className="bg-ink text-bone p-16 mt-32">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 border-t border-bone/10 pt-12">
             <div className="flex flex-col gap-4">
-              <span className="font-display text-2xl">Double Design</span>
+              <Image 
+                src="/logo.webp" 
+                alt="Dubble Paint Logo" 
+                width={200} 
+                height={66} 
+                className="h-12 w-auto object-contain brightness-0 invert"
+              />
               <p className="text-xs opacity-60">Made in Lagos since 2015. SON Certified.</p>
             </div>
             <div>

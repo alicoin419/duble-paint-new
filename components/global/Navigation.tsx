@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, User, ShoppingBag, Menu, X } from 'lucide-react';
@@ -21,15 +22,14 @@ export default function Navigation() {
     <nav className="sticky top-8 w-full h-16 lg:h-20 bg-bone/80 backdrop-blur-md border-b border-rule z-40 px-4 lg:px-8 flex items-center justify-between">
       {/* Logo */}
       <Link href="/" className="flex items-center gap-2 group">
-        <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-ink">
-          <rect width="40" height="40" fill="currentColor" fillOpacity="0.05"/>
-          <path d="M10 10H30V30H10V10Z" stroke="currentColor" strokeWidth="1.5"/>
-          <path d="M15 15H25V25H15V15Z" stroke="currentColor" strokeWidth="1.5" className="group-hover:translate-x-1 group-hover:translate-y-1 transition-transform"/>
-        </svg>
-        <div className="flex flex-col leading-none">
-          <span className="font-display text-lg tracking-tight">Double Design</span>
-          <span className="text-[10px] uppercase tracking-[0.2em] opacity-60">Paints</span>
-        </div>
+        <Image 
+          src="/logo.webp" 
+          alt="Dubble Paint Logo" 
+          width={180} 
+          height={60} 
+          className="h-10 w-auto object-contain"
+          priority
+        />
       </Link>
 
       {/* Desktop Links */}
@@ -78,7 +78,13 @@ export default function Navigation() {
             className="fixed inset-0 bg-bone z-[60] flex flex-col p-8"
           >
             <div className="flex justify-between items-center mb-12">
-               <span className="font-display text-xl">Menu</span>
+               <Image 
+                 src="/logo.webp" 
+                 alt="Dubble Paint Logo" 
+                 width={120} 
+                 height={40} 
+                 className="h-8 w-auto object-contain"
+               />
                <button onClick={() => setIsMobileMenuOpen(false)}><X size={32} /></button>
             </div>
             
