@@ -3,23 +3,64 @@
 import { useStore } from "@/lib/store/useStore";
 import { X, Check } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const MOCK_FINISHES = [
-  { id: '1', name: 'Cappadocia', category: 'Texture', image: 'https://images.unsplash.com/photo-1541824894976-3f0f90768e91?q=80&w=2670&auto=format&fit=crop' },
-  { id: '2', name: 'Marvellino', category: 'Pearlescent', image: 'https://images.unsplash.com/photo-1615873966503-09717764670c?q=80&w=2670&auto=format&fit=crop' },
-  { id: '3', name: 'Stucco-tec', category: 'Stucco', image: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=2670&auto=format&fit=crop' },
-  { id: '4', name: 'Joyaux', category: 'Metallic', image: 'https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?q=80&w=2670&auto=format&fit=crop' },
-  { id: '5', name: 'Petra', category: 'Stone', image: 'https://images.unsplash.com/photo-1518717755992-c5d0ae2da951?q=80&w=2670&auto=format&fit=crop' },
-  { id: '6', name: 'Metallica', category: 'Metallic', image: 'https://images.unsplash.com/photo-1505235617560-d99bd4348882?q=80&w=2670&auto=format&fit=crop' },
+  { id: 'cappadocia',  name: 'Cappadocia',  category: 'Texture',          image: '/posts/670464277_18431455924137654_2021129107031105779_n.jpg' },
+  { id: 'marvellino', name: 'Marvellino',  category: 'Pearlescent',      image: '/posts/656425529_18428235988137654_5437037602706613576_n.jpg' },
+  { id: 'stucco-tec', name: 'Stucco-tec',  category: 'Stucco',           image: '/posts/641279800_2110078083158893_6285086235248295224_n.jpg' },
+  { id: 'onyx',       name: 'Onyx',        category: 'Metallic',         image: '/posts/649871712_18424424908137654_7323097420623266103_n.jpg' },
+  { id: 'tuscania',   name: 'Tuscania',    category: 'Polished Plaster',  image: '/posts/651591691_18425213830137654_6239825968475969113_n.jpg' },
+  { id: 'aurum',      name: 'Aurum',       category: 'Metallic',         image: '/posts/655964368_18428326249137654_6608690836982725613_n.jpg' },
 ];
 
 export default function SampleBoxPage() {
-  const { sampleBox, addToSampleBox, removeFromSampleBox } = useStore();
+  const { sampleBox, addToSampleBox, removeFromSampleBox, clearSampleBox } = useStore();
+  const [ordered, setOrdered] = useState(false);
 
   const isSelected = (id: string) => sampleBox.some(f => f.id === id);
 
+  const handleConfirmOrder = () => {
+    setOrdered(true);
+    clearSampleBox();
+  };
+
   return (
     <div className="min-h-screen bg-bone">
+      {/* Order Confirmation Overlay */}
+      <AnimatePresence>
+        {ordered && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="fixed inset-0 z-50 bg-ink/90 backdrop-blur-sm flex items-center justify-center px-8"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.1, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              className="bg-bone max-w-md w-full p-12 text-center"
+            >
+              <div className="w-12 h-12 bg-petra flex items-center justify-center mx-auto mb-8">
+                <Check size={20} className="text-bone" />
+              </div>
+              <h2 className="text-title mb-3">Order Confirmed.</h2>
+              <p className="text-body opacity-60 mb-2">Your sample box is on its way.</p>
+              <p className="text-xs opacity-40 mb-10 uppercase tracking-widest">Free delivery within 3–5 business days across Nigeria.</p>
+              <div className="space-y-3">
+                <Link href="/finishes" className="btn-primary w-full block text-center" onClick={() => setOrdered(false)}>
+                  Continue Browsing &rarr;
+                </Link>
+                <Link href="/" className="btn-ghost w-full block text-center" onClick={() => setOrdered(false)}>
+                  Back to Home
+                </Link>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="grid grid-cols-1 lg:grid-cols-10">
         
         {/* Left 60%: Builder */}
@@ -92,7 +133,8 @@ export default function SampleBoxPage() {
                 <span>Complementary</span>
               </div>
               <div className="hr-rule" />
-              <button 
+              <button
+                onClick={handleConfirmOrder}
                 disabled={sampleBox.length === 0}
                 className="btn-primary w-full disabled:opacity-30 disabled:pointer-events-none"
               >

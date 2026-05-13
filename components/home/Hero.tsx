@@ -4,15 +4,15 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 
 const HERO_IMAGES = [
-  { src: '/hero-1.png', title: 'Cappadocia' },
-  { src: '/hero-2.png', title: 'Marvellino' },
-  { src: '/hero-3.png', title: 'Stucco-tec' },
-  { src: '/hero-4.webp', title: 'Joyaux' },
-  { src: '/hero-5.webp', title: 'Petra' },
-  { src: '/hero-6.webp', title: 'Metallica' },
-  { src: '/hero-7.webp', title: 'Sieka' },
-  { src: '/hero-8.webp', title: 'Sun-ba' },
-  { src: '/hero-9.webp', title: 'Sadaf' },
+  { src: '/posts/640836990_18422216551137654_906104790729521505_n.jpg',  title: 'MARJ 268' },
+  { src: '/posts/643558668_18423412054137654_7992558779346566483_n.jpg',  title: 'SHOMAR 267' },
+  { src: '/posts/649873475_18424616026137654_1951276659491345991_n.jpg',  title: 'TULIP 236' },
+  { src: '/posts/652999374_18425621443137654_2853474462635297911_n.jpg',  title: 'MOUDA 245' },
+  { src: '/posts/655964368_18428326249137654_6608690836982725613_n.jpg',  title: 'NISAN 270' },
+  { src: '/posts/657844121_18429450949137654_6007451794152107908_n.jpg',  title: 'HABAK 265' },
+  { src: '/posts/670778429_18432511021137654_7634791149130200903_n.jpg',  title: 'HAIFA 184' },
+  { src: '/posts/671066314_18431856091137654_8370656586444899901_n.jpg',  title: 'MAHA 183' },
+  { src: '/posts/683220651_18433352575137654_365842362136855464_n.jpg',   title: 'KRONFOL 193' },
 ];
 
 export default function Hero() {

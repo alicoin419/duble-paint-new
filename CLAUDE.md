@@ -104,8 +104,10 @@ Response:
 }
 ```
 
-#### `/api/designer/scan/route.ts` - Image scan endpoint (not yet implemented)
-#### `/api/designer/replicate/route.ts` - Direct Replicate integration (not yet implemented)
+#### `/api/designer/scan/route.ts` - Image scan endpoint (stub, not yet implemented)
+#### `/api/designer/replicate/route.ts` - Direct Replicate/SAM 2 integration (stub, not yet implemented)
+
+**Note**: Despite the architecture docs describing a dual-mode approach, the current `route.ts` implementation only uses Gemini. The SAM 2 / Replicate path is planned but not wired up.
 
 ### File Structure
 
@@ -177,22 +179,15 @@ Font sizes: `--text-hero`, `--text-display`, `--text-title`, `--text-body`, `--t
 - Mux video player with loop + autoplay
 - Framer Motion entrance animations
 
-### Git Status
+### Additional Libraries
 
-Current branch: `main`
-
-Modified files:
-- `DECISIONS.md` - Architecture decisions log
-- `app/api/designer/route.ts` - Designer API implementation
-- `app/layout.tsx` - Logo integration
-- `components/designer/DesignerTool.tsx` - AI tool updates
-- `components/global/Navigation.tsx` - Logo updates
-- `package.json` / `package-lock.json` - Dependencies
-
-Untracked:
-- `app/api/designer/replicate/` - New API directory
-- `app/api/designer/scan/` - New API directory
-- `public/logo.webp` - Brand logo asset
+Installed but not yet prominently used / wired up:
+- `@dnd-kit/core` - Drag-and-drop (likely for moodboard reordering)
+- `algoliasearch` - Search (planned for finish discovery)
+- `react-hook-form` + `zod` - Forms and validation (zod already used in API route)
+- `sharp` - Image processing (available server-side)
+- `lucide-react` - Icon set
+- `tailwind-merge` + `clsx` - Class name utilities
 
 ## Important Notes
 

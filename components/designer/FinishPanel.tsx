@@ -92,12 +92,14 @@ export default function FinishPanel({ activeFinish, onSelect, selectedSegmentId,
                   transition={{ duration: 0.18 }}
                   className="relative group"
                 >
-                  <button
+                  <div
                     role="option"
                     aria-selected={isActive}
                     aria-label={`${finish.name} — ${finish.category}`}
                     onClick={() => onSelect(finish)}
-                    className={`w-full flex flex-col gap-1 text-left transition-all ${
+                    onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onSelect(finish)}
+                    tabIndex={0}
+                    className={`w-full flex flex-col gap-1 text-left transition-all cursor-pointer ${
                       isActive ? 'ring-2 ring-ink ring-offset-1' : ''
                     }`}
                   >
@@ -130,7 +132,7 @@ export default function FinishPanel({ activeFinish, onSelect, selectedSegmentId,
                     <span className="text-[8px] uppercase tracking-wider leading-tight px-0.5 truncate w-full">
                       {finish.name}
                     </span>
-                  </button>
+                  </div>
                 </motion.div>
               );
             })}

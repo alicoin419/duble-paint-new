@@ -3,7 +3,13 @@
     "allow": [
       "Bash(claude doctor *)",
       "Bash(npm uninstall *)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(Get-ChildItem -Path \"D:\\\\dubble paint website\" -Recurse -Exclude \"node_modules\", \".next\", \".git\", \"dist\", \"build\" -File)",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(Sort-Object)",
+      "Bash(Get-ChildItem \"D:\\\\dubble paint website\\\\public\\\\posts\" -Recurse)",
+      "Bash(Select-Object FullName, Length)",
+      "Bash(Format-Table -AutoSize)"
     ]
   }
 }

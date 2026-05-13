@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, User, ShoppingBag, Menu, X } from 'lucide-react';
+import { useStore } from '@/lib/store/useStore';
 
 const NAV_LINKS = [
   { name: 'Finishes', href: '/finishes' },
@@ -17,6 +18,7 @@ const NAV_LINKS = [
 
 export default function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { sampleBox } = useStore();
 
   return (
     <nav className="sticky top-8 w-full h-16 lg:h-20 bg-bone/80 backdrop-blur-md border-b border-rule z-40 px-4 lg:px-8 flex items-center justify-between">
@@ -53,7 +55,9 @@ export default function Navigation() {
         <Link href="/sample-box" className="flex items-center gap-2 group">
           <div className="relative">
             <ShoppingBag size={20} />
-            <span className="absolute -top-1 -right-1 w-3 h-3 bg-petra text-[8px] flex items-center justify-center text-bone">0</span>
+            {sampleBox.length > 0 && (
+              <span className="absolute -top-1 -right-1 w-3 h-3 bg-petra text-[8px] flex items-center justify-center text-bone">{sampleBox.length}</span>
+            )}
           </div>
           <span className="text-[10px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">Sample Box</span>
         </Link>

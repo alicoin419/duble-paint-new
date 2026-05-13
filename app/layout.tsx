@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import "./globals.css";
 import UtilityBar from "@/components/global/UtilityBar";
 import Navigation from "@/components/global/Navigation";
@@ -39,19 +40,19 @@ export default function RootLayout({
             <div>
               <h4 className="text-ui mb-4">Finishes</h4>
               <ul className="text-xs space-y-2 opacity-60">
-                <li>Texture</li>
-                <li>Pearlescent</li>
-                <li>Stucco</li>
-                <li>Metallic</li>
+                <li><Link href="/finishes" className="hover:opacity-100 transition-opacity">All Finishes</Link></li>
+                <li><Link href="/finishes?category=Texture" className="hover:opacity-100 transition-opacity">Texture</Link></li>
+                <li><Link href="/finishes?category=Pearlescent" className="hover:opacity-100 transition-opacity">Pearlescent</Link></li>
+                <li><Link href="/lookbook" className="hover:opacity-100 transition-opacity">Lookbook</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="text-ui mb-4">Company</h4>
               <ul className="text-xs space-y-2 opacity-60">
-                <li>About</li>
-                <li>The Dossier</li>
-                <li>Contact</li>
-                <li>Trade Program</li>
+                <li><Link href="/architectural" className="hover:opacity-100 transition-opacity">Coatings</Link></li>
+                <li><Link href="/showrooms" className="hover:opacity-100 transition-opacity">Showrooms</Link></li>
+                <li><Link href="/trade" className="hover:opacity-100 transition-opacity">Trade Programme</Link></li>
+                <li><Link href="/discover" className="hover:opacity-100 transition-opacity">Discover</Link></li>
               </ul>
             </div>
             <div>
