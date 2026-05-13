@@ -25,6 +25,7 @@
     "sanity": "^3.99.0",
     "sharp": "^0.34.5",
     "tailwind-merge": "^3.5.0",
+    "zod": "^4.4.3",
     "zustand": "^5.0.13"
   },
   "devDependencies": {

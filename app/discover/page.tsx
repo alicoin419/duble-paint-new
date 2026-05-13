@@ -102,13 +102,13 @@ export default function QuizPage() {
                   onClick={() => handleSelect(option.id)}
                   className="group relative aspect-square overflow-hidden border border-bone/10 hover:border-petra transition-colors text-left p-6 flex flex-col justify-end"
                 >
-                  {option.image && (
+                  {'image' in option && option.image && (
                     <div className="absolute inset-0 z-0">
                       <img src={option.image} className="w-full h-full object-cover opacity-40 group-hover:opacity-60 group-hover:scale-105 transition-all duration-700" alt={option.label} />
                       <div className="absolute inset-0 bg-gradient-to-t from-ink via-transparent to-transparent" />
                     </div>
                   )}
-                  {option.color && (
+                  {'color' in option && option.color && (
                     <div className="absolute inset-0 z-0" style={{ backgroundColor: option.color }}>
                        <div className="absolute inset-0 bg-ink/20 group-hover:bg-ink/0 transition-colors" />
                     </div>
