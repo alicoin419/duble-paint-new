@@ -3,13 +3,13 @@ import { FINISHES, type Finish, type FinishCategory } from '@/lib/designer/types
 // ─── Category Images (Unsplash) ───────────────────────────────────────────────
 
 export const CATEGORY_IMAGES: Record<string, string> = {
-  'Texture':          '/posts/670464277_18431455924137654_2021129107031105779_n.jpg',
-  'Pearlescent':      '/posts/651591691_18425213830137654_6239825968475969113_n.jpg',
-  'Stucco':           '/posts/641279800_2110078083158893_6285086235248295224_n.jpg',
-  'Metallic':         '/posts/649871712_18424424908137654_7323097420623266103_n.jpg',
-  'Stone & Concrete': '/posts/649871712_18424424908137654_7323097420623266103_n.jpg',
-  'Glaze':            '/posts/656425529_18428235988137654_5437037602706613576_n.jpg',
-  'Polished Plaster': '/posts/641279800_2110078083158893_6285086235248295224_n.jpg',
+  'Texture':          '/pintest%20images/Home%20bedroom%20Decorate.jpeg',
+  'Pearlescent':      '/pintest%20images/%23gold%20%23or.jpeg',
+  'Stucco':           '/pintest%20images/Wall%20panels%20designing.jpeg',
+  'Metallic':         '/pintest%20images/download%20(1).jpeg',
+  'Stone & Concrete': '/pintest%20images/download%20(2).jpeg',
+  'Glaze':            '/pintest%20images/download%20(3).jpeg',
+  'Polished Plaster': '/pintest%20images/download.jpeg',
 };
 
 // ─── Specs by Category ────────────────────────────────────────────────────────

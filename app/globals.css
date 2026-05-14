@@ -10,6 +10,8 @@
   --color-stone: var(--color-stone);
   --color-slate: var(--color-slate);
   --color-petra: var(--color-petra);
+  --color-forest: var(--color-forest);
+  --color-forest-dark: var(--color-forest-dark);
   --color-marvellino: var(--color-marvellino);
   --color-stucco: var(--color-stucco);
   --color-metallica: var(--color-metallica);
@@ -37,9 +39,14 @@
   }
 
   body {
-    background-color: var(--color-bone);
-    color: var(--color-ink);
+    background-color: var(--bg-main);
+    color: var(--text-body);
     min-height: 100vh;
+    line-height: 1.625;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--text-header);
   }
 
   button, a {
@@ -48,22 +55,31 @@
 }
 
 @layer components {
+  /* Primary CTA — Forest Green fill, white text */
   .btn-primary {
-    @apply border border-ink px-6 py-3 uppercase bg-transparent text-ink hover:bg-ink hover:text-bone transition-all duration-300;
+    @apply border border-forest px-6 py-3 uppercase bg-forest text-bone hover:bg-forest-dark hover:border-forest-dark transition-all duration-300;
     font-size: var(--text-ui);
     letter-spacing: var(--tracking-wide);
   }
 
   .btn-ghost {
-    @apply border border-transparent px-6 py-3 uppercase text-ink hover:underline transition-all duration-300;
+    @apply border border-transparent px-6 py-3 uppercase text-ink hover:text-forest hover:underline transition-all duration-300;
     font-size: var(--text-ui);
     letter-spacing: var(--tracking-wide);
   }
 
   .btn-outline {
-    @apply border border-stone px-6 py-3 uppercase text-ink hover:border-ink transition-all duration-300;
+    @apply border border-stone px-6 py-3 uppercase text-ink hover:border-forest hover:text-forest transition-all duration-300;
     font-size: var(--text-ui);
     letter-spacing: var(--tracking-wide);
+  }
+
+  /* Lift hover — translateY only, no shadow (Design Law #4) */
+  .btn-lift {
+    @apply transition-all duration-300;
+  }
+  .btn-lift:hover {
+    transform: translateY(-2px);
   }
 
   .hr-rule {
@@ -80,10 +96,24 @@
   content: "";
   position: absolute;
   inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Ffilter id='noiseFilter'%3E%3FfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3F/filter%3E%3Frect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3F/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
   opacity: 0.04;
   pointer-events: none;
   z-index: 1;
+}
+
+/* ─── Palette Services nav item: chameleon hue on hover ─────────────────── */
+@keyframes chameleon-hue {
+  0%   { color: #123D26 !important; }
+  25%  { color: #1E3F66 !important; }
+  50%  { color: #B13E53 !important; }
+  75%  { color: #167D5C !important; }
+  100% { color: #123D26 !important; }
+}
+
+.nav-palette-services {
+  color: #123D26;
+  animation: chameleon-hue 15s linear infinite;
 }
 
 .text-hero { font-size: var(--text-hero); }

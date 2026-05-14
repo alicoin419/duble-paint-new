@@ -1,17 +1,30 @@
 :root {
-  /* Colors */
-  --color-ink:        #0F0F0D;
-  --color-bone:       #F5F1EB;
-  --color-chalk:      #EDEAE3;
+  /* Core Palette — Luxury Warm */
+  --color-ink:        #2F363F;   /* Charcoal body text */
+  --color-bone:       #FFF8E7;   /* Warm Cream — primary bg */
+  --color-chalk:      #F3E5DC;   /* Pale Beige — subtle bg */
   --color-stone:      #C8C3B8;
   --color-slate:      #6B6760;
-  --color-petra:      #C4873A;  /* primary brand accent */
+  --color-petra:      #C5A059;   /* Soft Gold — accent */
   --color-marvellino: #B8A898;
   --color-stucco:     #8C7B6B;
   --color-metallica:  #9CA0A0;
   --color-success:    #3D6B4F;
   --color-error:      #8B2E2E;
-  --color-rule:       rgba(15,15,13,0.12);
+  --color-rule:       rgba(47, 54, 63, 0.12);
+
+  /* Brand — Forest Green */
+  --color-forest:      #123D26;
+  --color-forest-dark: #0A291A;
+
+  /* Semantic aliases */
+  --bg-main:      var(--color-bone);
+  --bg-subtle:    var(--color-chalk);
+  --text-body:    var(--color-ink);
+  --text-header:  var(--color-forest);
+  --brand-primary: var(--color-forest);
+  --brand-hover:   var(--color-forest-dark);
+  --accent-gold:   var(--color-petra);
 
   /* Spacing */
   --space-1: 8px;
@@ -26,7 +39,7 @@
   /* Grid */
   --grid-cols: 12;
   --grid-gutter: clamp(16px, 2.5vw, 32px);
-  --grid-margin: clamp(24px, 5vw, 96px);
+  --grid-margin: clamp(32px, 5vw, 96px);
   --grid-max: 1440px;
 
   /* Misc */
@@ -35,9 +48,12 @@
 }
 
 [data-theme="dark"] {
-  --color-ink: #F5F1EB;
-  --color-bone: #0F0F0D;
-  --color-chalk: #1A1916;
+  --color-ink:  #F5F1EB;
+  --color-bone: #1A1F1C;
+  --color-chalk: #232A26;
   --color-stone: #3A3835;
-  --color-rule: rgba(245, 241, 235, 0.12);
+  --color-rule:  rgba(245, 241, 235, 0.12);
+  --text-header: #6DBF8A;
+  --brand-primary: #4CAF72;
+  --brand-hover:   #3A9658;
 }

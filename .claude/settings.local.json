@@ -9,7 +9,8 @@
       "Bash(Sort-Object)",
       "Bash(Get-ChildItem \"D:\\\\dubble paint website\\\\public\\\\posts\" -Recurse)",
       "Bash(Select-Object FullName, Length)",
-      "Bash(Format-Table -AutoSize)"
+      "Bash(Format-Table -AutoSize)",
+      "Bash(dir \"D:\\\\dubble paint website\\\\public\\\\videos hero\")"
     ]
   }
 }
