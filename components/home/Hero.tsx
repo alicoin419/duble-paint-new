@@ -26,22 +26,22 @@ export default function Hero() {
 
       {/* Hero Content */}
       <div className="relative z-20 p-[var(--grid-margin)] w-full pointer-events-none">
-        <div className="max-w-2xl flex gap-8 items-start">
+        <div className="max-w-2xl flex gap-6 lg:gap-8 items-start">
           <motion.div
             initial={{ height: 0 }}
             animate={{ height: 160 }}
             transition={{ duration: 1, delay: 0.2 }}
-            className="w-[2px] bg-petra mt-4 hidden lg:block"
+            className="w-[2px] bg-petra mt-4 hidden lg:block flex-shrink-0"
           />
 
-          <div className="flex flex-col gap-8">
+          <div className="flex flex-col gap-5 md:gap-7 lg:gap-8">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
               className="flex items-center gap-4"
             >
-              <span className="text-spec text-bone/70 tracking-[0.5em] uppercase">
+              <span className="text-[11px] md:text-spec text-bone/70 tracking-[0.4em] md:tracking-[0.5em] uppercase">
                 The Atelier Collection &middot; 2025
               </span>
             </motion.div>
@@ -61,12 +61,12 @@ export default function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.8 }}
-              className="flex gap-8 pointer-events-auto"
+              className="flex flex-col sm:flex-row gap-3 sm:gap-5 lg:gap-8 pointer-events-auto"
             >
-              <button className="btn-lift border border-bone px-6 py-3 uppercase bg-forest text-bone hover:bg-forest-dark hover:border-forest-dark transition-all duration-300 text-ui tracking-widest">
+              <button className="btn-lift border border-bone px-5 sm:px-6 py-3.5 sm:py-3 uppercase bg-forest text-bone hover:bg-forest-dark hover:border-forest-dark transition-all duration-300 text-ui tracking-widest min-h-[48px]">
                 Explore Textures
               </button>
-              <button className="btn-lift border border-bone/50 px-6 py-3 uppercase text-bone hover:border-bone transition-all duration-300 text-ui tracking-widest">
+              <button className="btn-lift border border-bone/50 px-5 sm:px-6 py-3.5 sm:py-3 uppercase text-bone hover:border-bone transition-all duration-300 text-ui tracking-widest min-h-[48px]">
                 Order Sample Box &rarr;
               </button>
             </motion.div>

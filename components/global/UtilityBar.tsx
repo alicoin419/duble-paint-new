@@ -9,7 +9,7 @@ export default function UtilityBar() {
       initial={{ y: -32 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      className="h-8 bg-ink text-bone flex items-center justify-between px-4 lg:px-8 text-[10px] tracking-widest uppercase z-50 sticky top-0"
+      className="h-8 bg-ink text-bone flex items-center justify-between px-4 lg:px-8 text-[11px] tracking-widest uppercase z-50 sticky top-0"
     >
       {/* Left: Region Selector */}
       <div className="hidden lg:flex gap-4 opacity-70">
@@ -24,14 +24,14 @@ export default function UtilityBar() {
 
       {/* Center: Trade Link */}
       <Link href="/trade" className="hover:opacity-100 transition-opacity flex-1 lg:flex-none text-center">
-        For Architects & Designers &rarr;
+        For Architects &amp; Designers &rarr;
       </Link>
 
-      {/* Right: Sample Box Pill */}
+      {/* Right: Sample Box CTA */}
       <div className="hidden lg:block">
-        <Link 
-          href="/sample-box" 
-          className="bg-bone text-ink px-3 py-1 rounded-full font-bold hover:bg-petra hover:text-bone transition-colors"
+        <Link
+          href="/sample-box"
+          className="bg-bone text-ink px-3 py-0.5 font-bold hover:bg-petra hover:text-bone transition-colors"
         >
           Order Sample Box
         </Link>

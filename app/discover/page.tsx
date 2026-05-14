@@ -97,9 +97,9 @@ export default function QuizPage() {
       </div>
 
       {/* Header */}
-      <div className="p-8 flex justify-between items-center z-10">
+      <div className="px-5 md:px-8 py-5 md:py-8 flex justify-between items-center z-10">
         <Link href="/" className="text-ui opacity-40 hover:opacity-100 transition-opacity">&larr; Exit</Link>
-        <span className="text-spec opacity-40">
+        <span className="text-xs md:text-spec opacity-40">
           {showResults ? 'Results' : `Step ${stepIndex + 1} of ${STEPS.length}`}
         </span>
         {(stepIndex > 0 || showResults) ? (
@@ -117,10 +117,10 @@ export default function QuizPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              className="p-8 lg:p-16"
+              className="px-5 py-8 md:p-16"
             >
-              <div className="text-center mb-12">
-                <span className="text-[10px] uppercase tracking-widest opacity-40 block mb-4">Your Curation</span>
+              <div className="text-center mb-10 md:mb-12">
+                <span className="text-xs uppercase tracking-widest opacity-40 block mb-4">Your Curation</span>
                 <h2 className="text-display mb-4">
                   {moodAnswer ? `${moodAnswer.charAt(0).toUpperCase() + moodAnswer.slice(1)} ` : ''}
                   <span className="italic">Finishes.</span>
@@ -180,16 +180,16 @@ export default function QuizPage() {
               animate="center"
               exit="exit"
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute inset-0 flex flex-col items-center justify-center p-8 lg:p-24"
+              className="absolute inset-0 flex flex-col items-center justify-center px-5 py-8 md:p-16 lg:p-24"
             >
-              <h2 className="text-display mb-16 text-center max-w-2xl">{currentStep.question}</h2>
+              <h2 className="text-display mb-8 md:mb-12 lg:mb-16 text-center max-w-2xl">{currentStep.question}</h2>
 
-              <div className={`grid gap-4 w-full max-w-6xl ${currentStep.id === 'mood' ? 'grid-cols-2 lg:grid-cols-3' : 'grid-cols-2 lg:grid-cols-4'}`}>
+              <div className={`grid gap-3 md:gap-4 w-full max-w-6xl ${currentStep.id === 'mood' ? 'grid-cols-2 md:grid-cols-3' : 'grid-cols-2 md:grid-cols-4'}`}>
                 {currentStep.options.map((option) => (
                   <button
                     key={option.id}
                     onClick={() => handleSelect(option.id)}
-                    className="group relative aspect-square overflow-hidden border border-bone/10 hover:border-petra transition-colors text-left p-6 flex flex-col justify-end"
+                    className="group relative aspect-square overflow-hidden border border-bone/10 hover:border-petra transition-colors text-left p-4 md:p-6 flex flex-col justify-end"
                   >
                     {'image' in option && option.image && (
                       <div className="absolute inset-0 z-0">

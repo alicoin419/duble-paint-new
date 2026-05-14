@@ -21,7 +21,7 @@ export default function Navigation() {
   const { sampleBox } = useStore();
 
   return (
-    <nav className="sticky top-8 w-full h-16 lg:h-20 bg-bone/90 backdrop-blur-md border-b border-rule z-40 px-8 lg:px-10 flex items-center justify-between">
+    <nav className="sticky top-8 w-full h-14 md:h-16 lg:h-20 bg-bone/90 backdrop-blur-md border-b border-rule z-40 px-5 md:px-8 lg:px-10 flex items-center justify-between">
       {/* Logo */}
       <Link href="/" className="flex items-center gap-2 group">
         <Image 
@@ -84,43 +84,43 @@ export default function Navigation() {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed inset-0 bg-bone z-[60] flex flex-col p-8"
+            className="fixed inset-0 bg-bone z-[60] flex flex-col px-6 pt-5 pb-8 overflow-y-auto"
           >
-            <div className="flex justify-between items-center mb-12">
-               <Image 
-                 src="/logo.webp" 
-                 alt="Dubble Paint Logo" 
-                 width={120} 
-                 height={40} 
+            <div className="flex justify-between items-center mb-10">
+               <Image
+                 src="/logo.webp"
+                 alt="Dubble Paint Logo"
+                 width={120}
+                 height={40}
                  className="h-8 w-auto object-contain"
                />
-               <button onClick={() => setIsMobileMenuOpen(false)}><X size={32} /></button>
+               <button aria-label="Close menu" onClick={() => setIsMobileMenuOpen(false)} className="p-1"><X size={28} /></button>
             </div>
-            
-            <div className="flex flex-col gap-8">
+
+            <div className="flex flex-col gap-0 border-t border-rule">
               {NAV_LINKS.map((link) => (
-                <Link 
-                  key={link.name} 
+                <Link
+                  key={link.name}
                   href={link.href}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="text-2xl font-display hover:text-forest transition-colors"
+                  className="text-xl font-display hover:text-forest transition-colors py-5 border-b border-rule"
                 >
                   {link.name}
                 </Link>
               ))}
             </div>
 
-            <div className="mt-auto flex flex-col gap-4">
-              <Link 
-                href="/sample-box" 
-                className="btn-primary text-center"
+            <div className="mt-8 flex flex-col gap-3">
+              <Link
+                href="/sample-box"
+                className="btn-primary text-center py-4 text-sm tracking-widest uppercase"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Order Sample Box
               </Link>
-              <Link 
-                href="/trade" 
-                className="btn-outline text-center"
+              <Link
+                href="/trade"
+                className="btn-outline text-center py-4 text-sm tracking-widest uppercase"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Trade Portal
