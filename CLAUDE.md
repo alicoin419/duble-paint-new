@@ -6,201 +6,115 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Double Design Paints (DDP)** is a Next.js 16 website for a luxury architectural coatings brand based in Lagos. The site features an AI-powered Designer Tool that uses Gemini 2.5 Pro and Replicate's SAM 2 model for visual analysis and paint visualization.
+**Double Design Paints (DDP)** is a Next.js 16 website for a luxury architectural coatings brand based in Lagos. Core features: an AI-powered Designer Tool (Gemini 2.5 Pro + Replicate SAM 2), a finish catalogue with discovery quiz, sample-box ordering, and a lookbook.
 
 ## Development Commands
 
 ```bash
-# Development
-npm run dev          # Start dev server on localhost:3000
-
-# Build & Production
-npm run build        # Build for production
-npm start            # Start production server
-
-# Linting
-npm run lint         # Run ESLint
+npm run dev          # Dev server on localhost:3000
+npm run build        # Production build
+npm start            # Production server
+npm run lint         # ESLint (eslint-config-next)
 ```
+
+**Dependency installs require `--legacy-peer-deps`** — enforced via `.npmrc`. `next-sanity` and `@sanity/next-loader` declare peer deps for Next 14/15 but the project runs Next 16. Never delete `.npmrc`.
 
 ## Environment Variables
 
-Required variables in `.env.local`:
-- `GEMINI_API_KEY` - Google Gemini 2.5 Pro API key (for Designer Tool analysis)
-- `REPLICATE_API_TOKEN` - Replicate API token (for SAM 2 segmentation)
-- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` - Clerk auth (not yet configured)
-- `CLERK_SECRET_KEY` - Clerk auth (not yet configured)
-- `NEXT_PUBLIC_SANITY_PROJECT_ID` - Sanity CMS (not yet configured)
-- `NEXT_PUBLIC_SANITY_DATASET` - Sanity CMS (not yet configured)
+Required in `.env.local`:
+```
+GEMINI_API_KEY                    # Gemini 2.5 Pro (Designer Tool analysis)
+REPLICATE_API_TOKEN               # SAM 2 segmentation (planned, not yet wired)
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY # Clerk auth (installed, not configured)
+CLERK_SECRET_KEY
+NEXT_PUBLIC_SANITY_PROJECT_ID     # Sanity CMS (schema defined, not initialised)
+NEXT_PUBLIC_SANITY_DATASET
+```
 
 ## Architecture
 
 ### Tech Stack
-- **Next.js 16.2.6** with App Router (React 19)
-- **Tailwind CSS v4** with custom design tokens
-- **TypeScript** for type safety
-- **Zustand** for client state management (sample box, moodboard)
-- **Framer Motion** for animations (Law #1: Motion-first design)
-- **Sanity CMS** (schemas defined, not yet connected)
-- **Clerk** (installed, not yet configured)
+- **Next.js 16.2.6** App Router, React 19
+- **Tailwind CSS v4** — configured via `app/globals.css` `@theme {}` block (not `tailwind.config.js`)
+- **TypeScript**
+- **Zustand 5** — client state, localStorage-persisted
+- **Framer Motion 12** — all interactive animations
+- **Sanity 3** — schema defined in `sanity/schemas/finish.ts`, studio not initialised
+- **Clerk 7** — installed, environment variables missing
 
-### Design System Laws
+### Design System Laws — enforced in code, never override
 
-The brand follows strict design laws enforced in code:
+1. **No rounded corners** — `border-radius: 0 !important` in `app/globals.css:38`
+2. **Asymmetric grids** — 7/5 col splits (`lg:col-span-7` / `lg:col-span-5`), never 6/6
+3. **Motion-first** — every UI element uses Framer Motion with spring physics
+4. **No shadows** — depth through hairline borders (`--color-rule`) and contrast only
+   - Exception: the liquid-glass mobile nav uses `box-shadow: inset 0 1px 0 …` for a specular glass-rim highlight — this is acceptable
 
-1. **No Rounded Corners** - `border-radius: 0 !important` globally enforced in `app/globals.css:36`
-2. **Asymmetry** - Grid layouts use 7/5 column splits, not symmetric 6/6
-3. **Motion-First** - All UI uses Framer Motion animations with custom spring physics
-4. **No Shadows** - Depth via hairline borders (`--color-rule`) and color contrast
+### Color Tokens (`styles/tokens.css`)
 
-### Color System
+| Token | Value | Use |
+|---|---|---|
+| `--color-ink` | `#2F363F` | Body text, dark fills |
+| `--color-bone` | `#FFF8E7` | Primary background |
+| `--color-chalk` | `#F3E5DC` | Subtle section bg |
+| `--color-petra` | `#C5A059` | Brand gold accent |
+| `--color-forest` | `#123D26` | Primary brand green, CTAs |
+| `--color-rule` | `rgba(47,54,63,0.12)` | All hairline borders |
 
-Defined in `styles/tokens.css`:
-- `--color-ink` (#0F0F0D) - Primary text/dark
-- `--color-bone` (#F5F1EB) - Primary background/light
-- `--color-petra` (#C4873A) - Primary brand accent (gold)
-- `--color-chalk`, `--color-stone`, `--color-slate` - Neutrals
-- `--color-rule` - Hairline border color (rgba opacity)
+Dark mode via `[data-theme="dark"]` CSS attribute — no JS required.
 
-Dark mode theme switcher via `[data-theme="dark"]` CSS variables.
+### Responsive Design
 
-### State Management
+Breakpoints follow Tailwind defaults (`sm:640 md:768 lg:1024`). All section padding must be fluid — use the pattern `py-20 md:py-28 lg:py-40`, never a bare `py-40`. Horizontal padding uses the fluid custom property `px-[var(--grid-margin)]` which resolves to `clamp(32px, 5vw, 96px)`.
 
-**Zustand store** (`lib/store/useStore.ts`) with persist middleware:
-- `sampleBox` - Max 5 finishes, localStorage persisted as `ddp-storage`
-- `moodboard` - Unlimited finishes for inspiration boards
-- Actions: `addToSampleBox`, `removeFromSampleBox`, `clearSampleBox`, etc.
+Touch targets on mobile: minimum `min-h-[48px]` on interactive elements.
 
-### API Routes
+### Navigation — critical mobile gotcha
 
-#### `/api/designer/route.ts` - AI Designer Tool
-Dual-mode analysis:
-1. **Precision Mode** (with click coordinates): Uses Replicate SAM 2 model for pixel-perfect segmentation
-2. **Fallback Mode** (no click): Uses Gemini 2.5 Pro for architectural analysis and polygon segmentation
+`Navigation.tsx` uses `createPortal(mobileMenu, document.body)` to render the mobile drawer. **Do not move the drawer back inside `<nav>`** — the nav has `backdrop-filter: blur(…)` which creates a stacking context that traps `position: fixed` children, making the overlay invisible.
 
-Rate limiting: 10 requests/minute per IP (in-memory map)
+The nav bar itself uses a liquid-glass treatment: low-opacity bone background + `backdrop-blur(28px) saturate(180%)` + an `inset box-shadow` for the glass-rim highlight. Opacity and border intensify on scroll via a `scrolled` state boolean.
 
-Request body:
-```typescript
-{
-  image: string;        // base64 data URI
-  objectType: string;   // "wall", "ceiling", etc.
-  colorName: string;    // finish name
-  clickX?: number;      // normalized 0-1 (optional)
-  clickY?: number;      // normalized 0-1 (optional)
-}
-```
+### State Management (`lib/store/useStore.ts`)
 
-Response:
-```typescript
-{
-  isValidated: boolean;
-  feedback: string;
-  segmentation?: {
-    polygon?: Array<{x: number, y: number}>;  // Gemini mode
-    maskUrl?: string;                          // SAM 2 mode
-    obstructions?: Array<Array<{x: number, y: number}>>;
-    confidence?: number;
-  }
-}
-```
+Zustand store, persisted to `localStorage` as `ddp-storage`:
+- `sampleBox` — max 5 finishes; actions: `addToSampleBox`, `removeFromSampleBox`, `clearSampleBox`
+- `moodboard` — unlimited; actions: `addToMoodboard`, `removeFromMoodboard`
 
-#### `/api/designer/scan/route.ts` - Image scan endpoint (stub, not yet implemented)
-#### `/api/designer/replicate/route.ts` - Direct Replicate/SAM 2 integration (stub, not yet implemented)
+### Finish Data (`lib/designer/types.ts` + `lib/data/catalog.ts`)
 
-**Note**: Despite the architecture docs describing a dual-mode approach, the current `route.ts` implementation only uses Gemini. The SAM 2 / Replicate path is planned but not wired up.
+**Single source of truth** for the 24-finish catalogue is the `FINISHES` array in `lib/designer/types.ts`. `lib/data/catalog.ts` imports from it and augments with category images, specs, and per-finish media paths. The Sanity schema mirrors this structure but CMS is not live.
 
-### File Structure
+`FinishCategory` values: `'All' | 'Texture' | 'Pearlescent' | 'Stucco' | 'Metallic' | 'Stone & Concrete' | 'Glaze' | 'Polished Plaster'`
 
-```
-app/
-├── api/designer/          # AI Designer API endpoints
-├── designer/page.tsx      # Designer Tool page
-├── discover/page.tsx      # Finish discovery page
-├── finishes/[slug]/       # Dynamic finish detail pages
-├── sample-box/page.tsx    # Sample box checkout
-├── layout.tsx             # Root layout with Navigation + Footer
-└── globals.css            # Global styles + Tailwind config
+### AI Designer API (`app/api/designer/route.ts`)
 
-components/
-├── designer/
-│   └── DesignerTool.tsx   # Main AI Designer component
-├── finish/
-│   └── TextureMagnifier.tsx  # 4K macro zoom component
-├── global/
-│   ├── Navigation.tsx     # Main nav with logo
-│   └── UtilityBar.tsx     # Top announcement bar
-└── home/
-    ├── Hero.tsx           # Video hero with Mux player
-    └── MarqueeStrip.tsx   # Scrolling finish showcase
+Rate-limited at 10 req/min per IP (in-memory `Map` — resets on server restart).
 
-lib/
-└── store/useStore.ts      # Zustand state management
+Currently only the **Gemini path** is active. The SAM 2 / Replicate path is described in architecture docs but not wired up (`/api/designer/replicate/route.ts` is a stub).
 
-styles/
-├── tokens.css             # Design system variables
-└── typography.css         # Font definitions
+Request: `{ image: string (base64 data URI), objectType: string, colorName: string, clickX?: number, clickY?: number }`
 
-sanity/
-└── schemas/
-    └── finish.ts          # Sanity schema for finishes
-```
+Response: `{ isValidated: boolean, feedback: string, segmentation?: { polygon?, maskUrl?, obstructions?, confidence? } }`
 
-### Sanity CMS Schema
+### Pages
 
-The `finish` document type includes:
-- Basic: name, slug, tagline, category
-- Media: hero_image, macro_image_4k, hero_video (Mux ID), gallery
-- Technical: technical_specs object (surface type, coverage, drying time, etc.)
-- Content: application_steps (rich text)
+| Route | Purpose |
+|---|---|
+| `/` | Home — hero video, featured finishes, trust rail, PGN endorsement, lookbook teaser |
+| `/finishes` | Full catalogue grid with category filter |
+| `/finishes/[slug]` | Dynamic finish detail (data from `FINISH_CATALOG`) |
+| `/discover` | Full-screen mood quiz → curated finish results |
+| `/designer` | AI Designer Tool — upload photo, click surface, visualise paint |
+| `/sample-box` | Order up to 5 finish samples |
+| `/lookbook` | Editorial chapters |
+| `/trade` | Trade programme landing |
+| `/showrooms` | Showroom locations |
+| `/architectural` | Architectural coatings |
 
-Categories: Texture, Pearlescent, Stucco, Metallic, Stone & Concrete, Glaze, Polished Plaster
+### Key Architectural Notes
 
-### Typography System
-
-Three font families (defined in `styles/typography.css`):
-- `--font-display` - Headings (currently Inter as fallback)
-- `--font-ui` - UI elements (currently system-ui)
-- `--font-mono` - Technical specs (Fira Code fallback)
-
-Font sizes: `--text-hero`, `--text-display`, `--text-title`, `--text-body`, `--text-ui`, `--text-caption`, `--text-spec`
-
-### Key Components
-
-**DesignerTool** (`components/designer/DesignerTool.tsx`):
-- Uploads image, analyzes with AI, visualizes paint application
-- Supports click-to-target precision mapping
-- Integrates with Zustand store for finish selection
-
-**TextureMagnifier** (`components/finish/TextureMagnifier.tsx`):
-- Custom spring physics for macro texture zoom
-- Uses 4K macro images for detail inspection
-
-**Hero** (`components/home/Hero.tsx`):
-- Mux video player with loop + autoplay
-- Framer Motion entrance animations
-
-### Additional Libraries
-
-Installed but not yet prominently used / wired up:
-- `@dnd-kit/core` - Drag-and-drop (likely for moodboard reordering)
-- `algoliasearch` - Search (planned for finish discovery)
-- `react-hook-form` + `zod` - Forms and validation (zod already used in API route)
-- `sharp` - Image processing (available server-side)
-- `lucide-react` - Icon set
-- `tailwind-merge` + `clsx` - Class name utilities
-
-## Important Notes
-
-1. **Next.js 16 Breaking Changes**: This version may have API differences from training data. Check `node_modules/next/dist/docs/` for current documentation.
-
-2. **Design Enforcement**: Do not add rounded corners, shadows, or symmetric layouts. These violate the brand laws.
-
-3. **AI Designer Tool**: Uses both Gemini 2.5 Pro (fallback) and SAM 2 (precision mode). Always test with both code paths.
-
-4. **Rate Limiting**: In-memory rate limiting resets on server restart. Consider Redis for production.
-
-5. **Sanity Not Connected**: Schema is defined but CMS is not initialized. Run Sanity setup before using CMS features.
-
-6. **Clerk Not Configured**: Auth package installed but environment variables needed.
-
-7. **Mobile Responsiveness**: Use Tailwind's responsive prefixes. Test at mobile, tablet, desktop breakpoints.
+- **`/discover` page** uses `fixed inset-0 z-[100]` — it renders as a full-screen overlay above everything including the nav. It manages its own header (Exit / Back / step counter).
+- **Tailwind v4 config** lives entirely in `app/globals.css` inside the `@theme {}` block — there is no separate `tailwind.config.js`. Add new design tokens there and re-export via CSS custom properties.
+- **`@google/generative-ai`** is the Gemini SDK used in the API route (not the Vertex AI SDK).
+- **Media files** with spaces in names are URL-encoded in `src` attributes (e.g. `/videos%20hero/Generated%20Video%20May%2014%2C%202026%20-%2012_11AM.mp4`).
